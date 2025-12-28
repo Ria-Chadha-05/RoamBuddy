@@ -31,14 +31,6 @@ LLM Provider: Google Gemini API
 Model Used: gemini-2.5-flash
 Deployment Platform: Hugging Face Spaces
 
-**Repository Structure: **
-
-My_GenAI_ChatBot/
-├── app.py              # Core application logic and API calls
-├── requirements.txt    # Python dependencies
-├── README.md           # Documentation
-└── .gitattributes
-
 **Local Setup & Execution:**
 
 - Clone the repository
