@@ -1,4 +1,4 @@
-RoamBuddy – AI Travel Chatbot 
+**RoamBuddy – AI Travel Chatbot**
 
 RoamBuddy is a Generative AI–powered travel chatbot built to demonstrate end-to-end deployment of a large language model–backed application. The system integrates a Python backend, a conversational UI, and a persona-driven prompt design to deliver personalized travel planning assistance.
 
