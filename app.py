@@ -1,6 +1,6 @@
 import os
 import gradio as gr
-import google.generativeai as genai
+from google import genai
 
 """**How to get Google Gemini API Key?**
 
