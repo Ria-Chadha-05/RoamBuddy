@@ -10,7 +10,7 @@ from google import genai
 """
 
 GEMINI_API_KEY="AIzaSyBg1CYTTOfWBrOzgxBhBLqHjujx7qVurrM"
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 """
 - Similar to Gemini Model we can also use HuggingFace Transformer Models.
@@ -23,43 +23,57 @@ genai.configure(api_key=GEMINI_API_KEY)
 #     model_id="gpt2",
 #     task="text-generation",)
 
-# Initialize Gemini model
-gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-
 # Custom LLM wrapper for Gemini
 class GeminiLLM:
-    def __init__(self, model):
-        self.model = model
+    def __init__(self):
         self.memory_history = []
 
     def predict(self, user_message):
-        # Build conversation context
-        full_prompt = "Meet Arya, your adventurous and street-smart travel guide! At 26 years old, Arya lives for exploring new places and uncovering hidden gems. With a backpack full of stories and a mind packed with travel hacks, Arya helps you plan stress-free, well-balanced itineraries tailored to your pace and budget. Whether it’s scenic cafés, local food spots, or offbeat experiences, Arya’s enthusiasm and practical tips make every trip feel exciting, personal, and perfectly planned.\n"
-        for msg in self.memory_history:
-            full_prompt += f"{msg}\n"
-        full_prompt += f"User: {user_message}\nChatbot:"
+        # Persona prompt
+        full_prompt = (
+            "Meet Arya, your adventurous and street-smart travel guide! "
+            "At 26 years old, Arya lives for exploring new places and uncovering hidden gems. "
+            "With a backpack full of stories and a mind packed with travel hacks, Arya helps "
+            "you plan stress-free, well-balanced itineraries tailored to your pace and budget. "
+            "Whether it’s scenic cafés, local food spots, or offbeat experiences, Arya’s enthusiasm "
+            "and practical tips make every trip feel exciting, personal, and perfectly planned.\n\n"
+        )
 
-        # Generate response
-        response = self.model.generate_content(full_prompt)
+        for msg in self.memory_history:
+            full_prompt += msg + "\n"
+
+        full_prompt += f"User: {user_message}\nArya:"
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=full_prompt
+        )
+
         answer = response.text
 
         # Update memory
         self.memory_history.append(f"User: {user_message}")
-        self.memory_history.append(f"Chatbot: {answer}")
+        self.memory_history.append(f"Arya: {answer}")
 
-        # Keep only last 10 exchanges
+        # Keep last 10 turns
         if len(self.memory_history) > 20:
             self.memory_history = self.memory_history[-20:]
 
         return answer
 
-llm_chain = GeminiLLM(gemini_model)
+llm_chain = GeminiLLM()
 
-def get_text_response(user_message,history):
-    response = llm_chain.predict(user_message = user_message)
-    return response
+def get_text_response(user_message, history):
+    return llm_chain.predict(user_message)
 
-demo = gr.ChatInterface(get_text_response, examples=["How are you doing?","What are your interests?","Which places do you like to visit?"])
+demo = gr.ChatInterface(
+    get_text_response,
+    examples=[
+        "How are you doing?",
+        "Plan a 3-day trip to Jaipur",
+        "Suggest offbeat cafés in Delhi"
+    ],
+)
 
 if __name__ == "__main__":
     demo.launch(debug=True) #To create a public link, set `share=True` in `launch()`. To enable errors and logs, set `debug=True` in `launch()`.
